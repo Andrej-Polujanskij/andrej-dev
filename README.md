@@ -58,13 +58,3 @@ app/
   particles/          WebGL engine, no Vue: renderer, formations, camera, shaders
 public/               favicon and the social preview image (og.png)
 ```
-
-## Deploy to Cloudflare
-
-The site is static and deployed as a Cloudflare Worker with static assets (`wrangler.jsonc`).
-
-1. Push the repository to GitHub.
-2. In the Cloudflare dashboard open **Workers & Pages → Create → Import a repository** and pick it.
-3. Set the build command to `yarn generate` and the deploy command to `npx wrangler deploy`.
-
-Every push to `main` then builds and deploys the site. When the domain is ready, add it under the Worker's **Settings → Domains & Routes** and update `siteUrl` in `nuxt.config.ts`.
