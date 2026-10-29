@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type IconName = 'layers' | 'window' | 'code' | 'arrowUpRight' | 'mail' | 'menu' | 'close';
+type IconName = 'layers' | 'window' | 'code' | 'arrowUpRight' | 'mail';
 
 // Stroke icons on a 16 x 16 grid.
 const paths: Record<IconName, string[]> = {
@@ -14,8 +14,6 @@ const paths: Record<IconName, string[]> = {
     'M2.6 3.7h10.8a.9.9 0 0 1 .9.9v6.8a.9.9 0 0 1-.9.9H2.6a.9.9 0 0 1-.9-.9V4.6a.9.9 0 0 1 .9-.9Z',
     'm2 4.4 6 4.4 6-4.4',
   ],
-  menu: ['M2.5 5.5h11M2.5 10.5h11'],
-  close: ['m3.5 3.5 9 9M12.5 3.5l-9 9'],
 };
 
 const { name } = defineProps<{ name: IconName }>();

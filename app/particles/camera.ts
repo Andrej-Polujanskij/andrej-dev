@@ -1,4 +1,5 @@
 import { clamp, lerpVec3, smoothstep, type Vec3 } from '~/utils/math';
+import type { Scene } from '~/scenes';
 import { timingAt } from '~/utils/timeline';
 
 export interface CameraPose {
@@ -25,20 +26,26 @@ const diveInto = ({ eye, target }: CameraPose): CameraPose => ({
   target: lerpVec3(eye, target, 1.5),
 });
 
+const cameraOf = (scene: Scene, narrow: boolean) => (narrow && scene.narrowCamera) || scene.camera;
+
 /** Camera pose at scroll position s, following the cameras in the scene list. */
-export const cameraAt = (s: number): CameraPose => {
+export const cameraAt = (s: number, narrow: boolean): CameraPose => {
   const { current, next } = timingAt(s);
-  const { start, end, transition, scene } = current;
-  if (!next || s <= end)
-    return between(scene.camera.start, scene.camera.end, (s - start) / (end - start));
+  const { start, end, transition } = current;
+  const camera = cameraOf(current.scene, narrow);
+  if (!next || s <= end) return between(camera.start, camera.end, (s - start) / (end - start));
 
   const u = (s - end) / transition;
-  if (scene.exit !== 'flash') return between(scene.camera.end, next.scene.camera.start, u);
+  const nextStart = cameraOf(next.scene, narrow).start;
+  if (current.scene.exit !== 'flash') return between(camera.end, nextStart, u);
   // Dive in during the first half; the second half is hidden by the flash.
-  return u < 0.5
-    ? between(scene.camera.end, diveInto(scene.camera.end), u * 2)
-    : next.scene.camera.start;
+  return u < 0.5 ? between(camera.end, diveInto(camera.end), u * 2) : nextStart;
 };
+
+// The furthest the camera moves back on narrow screens. A camera that looks far into the
+// distance, like the one over the horizon, would otherwise end up so far back that the
+// shape in front of it fades out.
+const MAX_PULL_BACK = 12;
 
 /** Pulls the camera back on narrow screens and lets the mouse orbit it a little. */
 export const adjustForViewport = (
@@ -46,7 +53,8 @@ export const adjustForViewport = (
   aspect: number,
   pointer: { x: number; y: number },
 ): CameraPose => {
-  const pullBack = aspect < 1 ? clamp(0.9 / aspect, 1, 2) : aspect < 1.3 ? 1.15 : 1;
+  const fit = aspect < 1 ? clamp(0.9 / aspect, 1, 2) : aspect < 1.3 ? 1.15 : 1;
+  const pullBack = Math.min(fit, 1 + MAX_PULL_BACK / distanceOf({ eye, target }));
   const [x, y, z] = lerpVec3(target, eye, pullBack);
   const yaw = pointer.x * 0.2;
   const dx = x - target[0];
@@ -111,9 +119,8 @@ const multiply = (a: number[], b: number[]) => {
   return out;
 };
 
-/** Height of the view at the target's distance from the camera. */
-export const visibleHeight = ({ eye, target }: CameraPose) =>
-  2 * Math.hypot(...subtract(eye, target)) * Math.tan(FIELD_OF_VIEW / 2);
+/** How far the camera is from what it looks at. */
+export const distanceOf = ({ eye, target }: CameraPose) => Math.hypot(...subtract(eye, target));
 
 export const viewProjection = ({ eye, target }: CameraPose, aspect: number) =>
   multiply(perspective(FIELD_OF_VIEW, aspect, 0.05, 120), lookAt(eye, target));

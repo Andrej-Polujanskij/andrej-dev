@@ -156,17 +156,16 @@ export interface LayoutOffsets {
   sphere: Vec3;
 }
 
+/** How much bigger the sphere looks on narrow screens, so the text fits in its dark middle. */
+const NARROW_ZOOM = 1.35;
+
 /**
- * Moves the sphere out of the way of the text: to the right on wide screens, into the top
- * part of the screen on narrow ones. visibleHeight is the height the
- * camera sees at the shape's distance.
+ * Moves the sphere out of the way of the text on wide screens, to the right. On narrow ones it
+ * stays in the middle and comes closer to the camera, framing the centered text.
+ * distance is how far the camera is from the shape.
  */
-export const layoutOffsets = (
-  aspect: number,
-  narrow: boolean,
-  visibleHeight: number,
-): LayoutOffsets => {
-  if (narrow) return { sphere: [0, visibleHeight * 0.3, 0] };
+export const layoutOffsets = (aspect: number, narrow: boolean, distance: number): LayoutOffsets => {
+  if (narrow) return { sphere: [0, 0, distance * (1 - 1 / NARROW_ZOOM)] };
   const right = aspect > 1.45 ? 1 : 0.8;
   return { sphere: [3.5 * right, 0, 0] };
 };

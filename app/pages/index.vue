@@ -23,5 +23,6 @@ const flashOpacity = computed(() => flashAt(progress.value) * (reducedMotion.val
       <SkillsSection />
       <ContactSection />
     </div>
+    <PageLoader />
   </main>
 </template>

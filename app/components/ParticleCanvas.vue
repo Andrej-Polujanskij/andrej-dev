@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { adjustForViewport, cameraAt, viewProjection, visibleHeight } from '~/particles/camera';
+import { adjustForViewport, cameraAt, distanceOf, viewProjection } from '~/particles/camera';
 import { createParticleData, FORMATIONS, layoutOffsets } from '~/particles/formations';
 import { createParticleRenderer, type Look, type ParticleRenderer } from '~/particles/renderer';
 import { lerp, smoothstep } from '~/utils/math';
@@ -34,7 +34,7 @@ const draw = () => {
   const s = progress.value;
   const aspect = canvas.value.clientWidth / canvas.value.clientHeight;
   const { from, to, t } = blendAt(s);
-  const camera = adjustForViewport(cameraAt(s), aspect, pointer);
+  const camera = adjustForViewport(cameraAt(s, narrow.value), aspect, pointer);
 
   renderer.render({
     viewProjection: viewProjection(camera, aspect),
@@ -47,7 +47,7 @@ const draw = () => {
     look: mixLooks(from.scene.look, to.scene.look, t),
     time: reducedMotion.value ? 3 : performance.now() / 1000,
     intro: reducedMotion.value ? 1 : smoothstep(0.15, 1.8, seconds.value),
-    offsets: layoutOffsets(aspect, narrow.value, visibleHeight(camera)),
+    offsets: layoutOffsets(aspect, narrow.value, distanceOf(camera)),
   });
 };
 

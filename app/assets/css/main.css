@@ -38,6 +38,18 @@
   --animate-scroll-wheel: scroll-wheel 1.6s ease-in-out infinite;
   --animate-drag-in: drag-in 6s ease-in-out infinite;
   --animate-voice: voice 1.1s ease-in-out infinite;
+  --animate-blink: blink 1s ease-in-out infinite;
+
+  /* The colon of a clock, fading out and back once a second. */
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.2;
+    }
+  }
 
   /* One bar of a voice level meter, rising and falling. */
   @keyframes voice {
@@ -93,6 +105,15 @@
   html {
     color-scheme: dark;
     background: var(--color-bg);
+    /* Keeps the layout still when the intro screen unlocks scrolling. */
+    scrollbar-gutter: stable;
+  }
+
+  /* No scrolling while the intro screen plays. */
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(#page-loader:not(.leaving)) {
+      overflow: hidden;
+    }
   }
 
   body {

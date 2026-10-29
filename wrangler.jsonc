@@ -5,4 +5,5 @@
     "directory": "./.output/public/",
     "not_found_handling": "404-page",
   },
+  "routes": [{ "pattern": "andrej-dev.com", "custom_domain": true }],
 }

@@ -20,8 +20,9 @@ const start = () => {
   };
   window.addEventListener('pointermove', onPointerMove, { passive: true });
 
-  const startedAt = performance.now();
-  let lastFrameAt = startedAt;
+  // The page's intro starts when the intro screen opens, so it plays in front of the reader.
+  const { revealedAt } = usePageLoader();
+  let lastFrameAt = performance.now();
   const tick = (now: number) => {
     const elapsed = Math.min(now - lastFrameAt, 100);
     lastFrameAt = now;
@@ -34,7 +35,7 @@ const start = () => {
       : progress.value + (scrolled - progress.value) * follow;
     progress.value = Math.abs(next - scrolled) < 0.0004 ? scrolled : next;
 
-    seconds.value = (now - startedAt) / 1000;
+    seconds.value = revealedAt.value === null ? 0 : Math.max(0, now - revealedAt.value) / 1000;
     pointer.x += (pointerTarget.x - pointer.x) * 0.05;
     pointer.y += (pointerTarget.y - pointer.y) * 0.05;
     requestAnimationFrame(tick);
@@ -45,7 +46,7 @@ const start = () => {
 /**
  * Updated every animation frame once the page is interactive:
  * - progress: scroll position in viewport heights, smoothed
- * - seconds: time since the page opened
+ * - seconds: time since the intro screen started to open (0 until then)
  * - pointer: mouse position from -0.5 to 0.5, smoothed
  */
 export const useScrollProgress = () => {

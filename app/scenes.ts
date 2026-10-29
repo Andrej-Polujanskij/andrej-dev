@@ -18,6 +18,8 @@ export interface Scene {
   exit?: 'flash';
   /** The camera moves from start to end while the scene is on screen. */
   camera: { start: CameraPose; end: CameraPose };
+  /** Used instead of camera on narrow screens, where the text takes more of the screen. */
+  narrowCamera?: { start: CameraPose; end: CameraPose };
   look: Look;
 }
 
@@ -61,6 +63,11 @@ export const scenes: Scene[] = [
     camera: {
       start: { eye: [0, 3.6, 12], target: [0, 9, -40] },
       end: { eye: [0, 3.3, 10.6], target: [0, 8.4, -40] },
+    },
+    // Tilted further up, so the horizon sinks below the code on phones.
+    narrowCamera: {
+      start: { eye: [0, 3.6, 12], target: [0, 18, -40] },
+      end: { eye: [0, 3.3, 10.6], target: [0, 17.4, -40] },
     },
     look: { exposure: 1.1, bloom: 0.55, bloomRadius: 16 },
   },

@@ -1,7 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 
 // The public address of the site. Used for the canonical link and social previews.
-// Change it once the domain is chosen.
 const siteUrl = 'https://andrej-dev.com';
 
 export default defineNuxtConfig({
