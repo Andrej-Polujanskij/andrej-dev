@@ -49,10 +49,12 @@ const swap = computed(() => {
 /** shown: 1 when the half is in place; direction: which way it moves while hidden. */
 const halfStyle = (shown: number, direction: 1 | -1): StyleValue => {
   if (!narrow.value) return undefined;
+  // A half only ever hides itself. While shown it inherits from the section, which is hidden
+  // and not clickable while another scene is on, or it would cover that scene's buttons.
   return {
     opacity: shown,
-    visibility: shown > 0 ? 'visible' : 'hidden',
-    pointerEvents: shown > 0.5 ? 'auto' : 'none',
+    visibility: shown > 0 ? undefined : 'hidden',
+    pointerEvents: shown > 0.5 ? undefined : 'none',
     transform: `translate3d(0, ${((1 - shown) * 16 * direction).toFixed(1)}px, 0)`,
   };
 };

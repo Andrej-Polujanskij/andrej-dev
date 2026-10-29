@@ -20,6 +20,8 @@ export interface Scene {
   camera: { start: CameraPose; end: CameraPose };
   /** Used instead of camera on narrow screens, where the text takes more of the screen. */
   narrowCamera?: { start: CameraPose; end: CameraPose };
+  /** On narrow screens the scene shows its content in two halves, one after the other. */
+  narrowHalves?: boolean;
   look: Look;
 }
 
@@ -47,6 +49,7 @@ export const scenes: Scene[] = [
     label: 'Work',
     formation: 'helix',
     duration: 1.6,
+    narrowHalves: true,
     camera: {
       start: { eye: [0.2, 0.6, 8.4], target: [0.8, 0, 0] },
       end: { eye: [0.2, 1.2, 8], target: [0.8, 0.3, 0] },

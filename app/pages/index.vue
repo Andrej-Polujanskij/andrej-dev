@@ -3,6 +3,8 @@ import { flashAt, totalLength } from '~/utils/timeline';
 
 const { progress, reducedMotion } = useScrollProgress();
 const flashOpacity = computed(() => flashAt(progress.value) * (reducedMotion.value ? 0.5 : 0.95));
+
+useSceneStepper();
 </script>
 
 <template>

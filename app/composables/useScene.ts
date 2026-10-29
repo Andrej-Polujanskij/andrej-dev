@@ -37,7 +37,7 @@ export const useSceneContext = () => {
 export const scrollToScene = (id: SceneId) => {
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   window.scrollTo({
-    top: anchorOf(timingOf(id)) * window.innerHeight,
+    top: anchorOf(timingOf(id), useNarrowLayout().value) * window.innerHeight,
     behavior: reduce ? 'auto' : 'smooth',
   });
 };

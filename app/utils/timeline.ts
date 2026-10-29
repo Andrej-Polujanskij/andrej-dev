@@ -73,12 +73,26 @@ export const textExitAt = ({ index, end }: SceneTiming, s: number) =>
 /** The first scene fades in by time after the page opens, not by scrolling. */
 export const introEnterAt = (seconds: number) => clamp((seconds - 0.35) / 1.75);
 
-/** Where a menu link scrolls to: a little into the scene, once its text is in. */
-export const anchorOf = ({ index, start, scene }: SceneTiming) => {
-  if (index === 0) return 0;
-  if (isLast(index)) return totalLength;
-  return start + scene.duration * 0.4;
+/**
+ * Where the scroll comes to rest in a scene: the middle of the stretch where its text is fully
+ * in. A scene with narrowHalves rests on each half on narrow screens. The first scene rests at
+ * the top and the last one at the bottom.
+ */
+export const stopsOf = ({ index, start, end, scene }: SceneTiming, narrow: boolean) => {
+  if (index === 0) return [0];
+  if (isLast(index)) return [totalLength];
+  const from = start + TEXT_IN.after;
+  const to = end - TEXT_OUT.before;
+  if (!narrow || !scene.narrowHalves) return [(from + to) / 2];
+  const middle = start + scene.duration / 2;
+  return [(from + middle) / 2, (middle + to) / 2];
 };
+
+/** Every place the scroll comes to rest, top to bottom. */
+export const stopsAt = (narrow: boolean) => timings.flatMap((timing) => stopsOf(timing, narrow));
+
+/** Where a menu link scrolls to: the first place its scene comes to rest. */
+export const anchorOf = (timing: SceneTiming, narrow: boolean) => stopsOf(timing, narrow)[0] ?? 0;
 
 /** Index of the scene the reader is on. It switches halfway through a transition. */
 export const activeIndexAt = (s: number) =>
