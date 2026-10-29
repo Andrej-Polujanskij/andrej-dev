@@ -116,8 +116,10 @@
     }
   }
 
+  /* clip, not hidden: hidden makes body a scroll container, and Safari keeps it one after the
+     intro screen unlocks scrolling, which unpins the sticky stage. */
   body {
-    @apply overflow-x-hidden bg-bg font-sans text-ink antialiased;
+    @apply overflow-x-clip bg-bg font-sans text-ink antialiased;
   }
 
   h1,

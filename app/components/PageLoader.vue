@@ -28,6 +28,27 @@ const letters = [...NAME].map((char, index) => {
   );
   return { char, color: `rgb(${r} ${g} ${b})` };
 });
+
+// The percentage counts up with the bar's easing, cubic-bezier(0.4, 0, 0.2, 1). Safari does not
+// redraw a counter that follows an animated custom property, so every number gets a keyframe of
+// its own, placed at the moment the easing reaches it.
+const bezier = (first: number, second: number, s: number) =>
+  3 * first * s * (1 - s) ** 2 + 3 * second * s ** 2 * (1 - s) + s ** 3;
+const timeAt = (value: number) => {
+  let low = 0;
+  let high = 1;
+  for (let step = 0; step < 24; step++) {
+    const middle = (low + high) / 2;
+    if (bezier(0, 1, middle) < value) low = middle;
+    else high = middle;
+  }
+  return bezier(0.4, 0.2, low);
+};
+const countFrames = Array.from(
+  { length: 101 },
+  (_, n) => `${(timeAt(n / 100) * 100).toFixed(2)}%{counter-reset:n ${n}}`,
+).join('');
+useHead({ style: [{ textContent: `@keyframes loader-count{${countFrames}}` }] });
 </script>
 
 <template>
@@ -69,17 +90,11 @@ const letters = [...NAME].map((char, index) => {
 </template>
 
 <style scoped>
-/* Typed custom properties, so the iris radius and the percentage can be animated. */
+/* A typed custom property, so the iris radius can be animated. */
 @property --hole {
   syntax: '<length>';
   inherits: false;
   initial-value: 0px;
-}
-
-@property --n {
-  syntax: '<integer>';
-  inherits: false;
-  initial-value: 0;
 }
 
 .page-loader {
@@ -90,11 +105,12 @@ const letters = [...NAME].map((char, index) => {
   place-items: center;
   overflow: hidden;
   background: var(--color-bg);
-  /* The iris: a see-through circle in the middle, with a soft edge, that grows when leaving. */
+  /* The iris: a see-through circle in the middle, with a soft edge, that grows when leaving.
+     The last stop stays above 0, or Safari hides the whole screen while the hole is closed. */
   mask-image: radial-gradient(
     circle at 50% 50%,
     transparent calc(var(--hole) - 10vmax),
-    #000 var(--hole)
+    #000 calc(var(--hole) + 1px)
   );
   /* If the app never loads, get out of the way anyway. */
   animation: loader-fallback 0s 6s forwards;
@@ -227,13 +243,14 @@ const letters = [...NAME].map((char, index) => {
 }
 
 .count {
-  counter-reset: n var(--n);
   font-variant-numeric: tabular-nums;
-  animation: count 2.2s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
 }
 
+/* loader-count is made in the script. */
 .count::after {
+  counter-reset: n 0;
   content: counter(n) '%';
+  animation: loader-count 2.2s linear 0.1s forwards;
 }
 
 .bar {
@@ -298,12 +315,6 @@ const letters = [...NAME].map((char, index) => {
 @keyframes fade-in {
   to {
     opacity: 1;
-  }
-}
-
-@keyframes count {
-  to {
-    --n: 100;
   }
 }
 
